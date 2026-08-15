@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>我的日常分享站</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system}
+body{max-width:740px;margin:2rem auto;padding:0 1rem;background:#fff;color:#222}
+h1{margin-bottom:2rem;font-size:1.8rem}
+.article-item{padding:1rem 0;border-bottom:1px solid #eee}
+.article-item h2 a{font-size:1.25rem;color:#111;text-decoration:none}
+.article-item h2 a:hover{color:#2563eb}
+.meta{margin:0.4rem 0;font-size:0.9rem;color:#666}
+.tags span{display:inline-block;background:#efefef;padding:2px 8px;border-radius:4px;margin-right:6px;font-size:0.8rem}
+.loading{color:#888;padding:2rem 0;text-align:center}
+</style>
+</head>
+<body>
+<h1>📝我的日常分享</h1>
+<div id="list" class="loading">正在加载文章…</div>
+
+<script>
+// =========改成你自己的信息=========
+const GITHUB_USER = "isawasb16";
+const GITHUB_REPO = "isawasb16.github.io";
+const POSTS_DIR = "posts/";
+// =================================
+
+/** 解析md frontmatter */
+function parseFrontmatter(md) {
+  const fmReg = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
+  const match = md.match(fmReg);
+  if(!match) return {meta:{},content:md};
+  const fmText = match[1];
+  const content = match[2];
+  const meta = {};
+  fmText.split(/\r?\n/).forEach(line=>{
+    const kv = line.split(":");
+    if(kv.length>=2){
+      const k = kv[0].trim();
+      const v = kv.slice(1).join(":").trim();
+      if(k==="tags"){
+        meta.tags = v.split(",").map(t=>t.trim());
+      }else{
+        meta[k]=v;
+      }
+    }
+  })
+  return {meta,content};
+}
+
+async function buildList(){
+  const listDom = document.getElementById("list");
+  try{
+    const resp = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`);
+    const fileArr = await resp.json();
+    if(!Array.isArray(fileArr)){
+      listDom.innerText="读取posts目录失败";
+      return;
+    }
+    const mdFiles = fileArr.filter(f=>f.name.endsWith(".md")).sort((a,b)=>b.name.localeCompare(a.name));
+    listDom.innerHTML="";
+
+    for(const f of mdFiles){
+      const rawResp = await fetch(f.download_url);
+      const mdStr = await rawResp.text();
+      const {meta} = parseFrontmatter(mdStr);
+
+      const title = meta.title||f.name.replace(/\.md$/,"");
+      const date = meta.date||"";
+      const tags = meta.tags||[];
+
+      const div = document.createElement("div");
+      div.className="article-item";
+      div.innerHTML=`
+        <h2><a href="article.html?file=${encodeURIComponent(f.name)}">${title}</a></h2>
+        <div class="meta">
+          ${date?`<span>📅 ${date}</span>`:""}
+        </div>
+        <div class="tags">
+          ${tags.map(t=>`<span>${t}</span>`).join("")}
+        </div>
+      `;
+      listDom.appendChild(div);
+    }
+  }catch(e){
+    listDom.innerText="加载失败，网络或API限制："+e.message;
+  }
+}
+
+buildList();
+</script>
+</body>
+</html>
