@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>数码资讯分享站｜手机数码测评随笔</title>
+    <meta name="keywords" content="手机测评,数码体验,数码随笔,机型科普,电子产品分享">
+    <meta name="description" content="纯个人数码资讯分享站点，日常更新手机、电子产品实测随笔，所有内容以Markdown文章更新，无商品交易、无导流外链。">
+    <meta name="robots" content="index,follow">
+    <meta name="applicable-device" content="pc,mobile">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif}
+        :root{
+            --main-color:#0a499d;
+            --light-color:#e8f0ff;
+            --text-gray:#666;--white:#fff;
+            --shadow:0 2px 8px rgba(10,73,157,0.1);
+            --highlight-color:#0078d4;
+            scroll-behavior:smooth;
+        }
+        body{background:var(--light-color);color:#333;-webkit-tap-highlight-color:transparent}
+        .container{display:flex;min-height:100vh;flex-direction:row-reverse;}
+        .nav-toggle{display:flex;position:fixed;top:15px;left:15px;width:40px;height:40px;background:#fff;border-radius:8px;box-shadow:var(--shadow);z-index:1001;
+            align-items:center;justify-content:center;cursor: pointer;
+        }
+        .nav-toggle span{display:block;width:24px;height:2px;background:var(--main-color);position:relative}
+        .nav-toggle span:before,.nav-toggle span:after{content:"";position:absolute;width:24px;height:2px;background:var(--main-color);left:0}
+        .nav-toggle span:before{top:-8px}
+        .nav-toggle span:after{bottom:-8px}
+        .sidebar{width:220px;background:var(--white);box-shadow:var(--shadow);position:sticky;top:0;padding:40px 20px;flex:0 0 220px;display:flex;flex-direction:column;gap:60px;z-index:1000}
+        .sidebar .title{font-size:20px;font-weight:700;color:var(--main-color);text-align:center;border-bottom:2px solid var(--light-color);padding-bottom:15px}
+        .sidebar .nav-list{list-style:none;display:flex;flex-direction:column;gap:25px}
+        .sidebar .nav-list li{padding:12px 15px;border-radius:8px;cursor:pointer;transition:.3s}
+        .sidebar .nav-list li.active,.sidebar .nav-list li:hover{background:var(--light-color);color:var(--main-color);font-weight:500}
+        .main-content{flex:1;padding:50px 80px;overflow-y:auto}
+        .page-desc,.article-box,.core-advantage,.faq,.friend-link,.related-pages{scroll-margin-top:20px}
+
+        .page-desc{margin-bottom:60px}
+        .page-desc h2{font-size:28px;color:var(--main-color);margin-bottom:15px}
+        .page-desc p{font-size:16px;color:var(--text-gray);line-height:1.8}
+        .section-title{font-size:22px;margin-bottom:30px;padding-left:10px;border-left:4px solid var(--main-color)}
+
+        /* 文章列表区域样式 */
+        .article-box{margin:80px 0}
+        .loading{color:#888;padding:3rem 0;text-align:center}
+        .error-text{color:#dc2626}
+        .article-item{padding:1rem 0;border-bottom:1px solid #eee}
+        .article-item h3 a{font-size:1.3rem;color:#111;text-decoration:none}
+        .article-item h3 a:hover{color:var(--highlight-color)}
+        .meta{margin:0.4rem 0;font-size:0.9rem;color:var(--text-gray)}
+        .tags span{display:inline-block;background:#efefef;padding:2px 8px;border-radius:4px;margin-right:6px;font-size:0.8rem}
+
+        /* 红色按钮样式 */
+        .red-btn-wrap{
+            margin-top:32px;
+            display:flex;
+            justify-content:center;
+        }
+        .red-btn{
+            display:inline-block;
+            padding:16px 48px;
+            background:#dc2626;
+            color:#fff;
+            font-size:20px;
+            font-weight:bold;
+            border-radius:50px;
+            text-decoration:none;
+            box-shadow:0 4px 12px rgba(220,38,38,0.3);
+            transition:0.3s ease;
+        }
+        .red-btn:hover{
+            background:#b91c1c;
+            transform: translateY(-3px);
+            box-shadow:0 6px 16px rgba(220,38,38,0.4);
+        }
+
+        .core-advantage{margin-bottom:80px}
+        .advantage-list{display:flex;flex-wrap:wrap;gap:30px;justify-content:space-between}
+        .advantage-item{width:calc(50% - 15px);background:var(--white);border-radius:12px;box-shadow:var(--shadow);padding:30px 25px}
+        .advantage-item h3{font-size:18px;color:var(--main-color);margin-bottom:15px}
+        .advantage-item p{font-size:14px;color:var(--text-gray);line-height:1.8}
+        .faq{margin-bottom:80px}
+        .faq-list{display:flex;flex-direction:column;gap:20px}
+        .faq-item{background:var(--white);border-radius:12px;box-shadow:var(--shadow);padding:25px 30px}
+        .faq-item h3{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--main-color)}
+        .faq-item p{font-size:14px;color:var(--text-gray);line-height:1.8}
+        .friend-link{margin-bottom:50px}
+        .link-list{background:var(--white);border-radius:12px;box-shadow:var(--shadow);padding:30px 25px;display:flex;flex-wrap:wrap;gap:20px;align-items:center}
+        .link-item{text-decoration:none;color:var(--text-gray);font-size:14px;padding:8px 15px;border-radius:6px}
+        .link-item:hover{background:var(--light-color);color:var(--main-color)}
+        .related-pages{margin:60px 0 40px 0;padding:30px;background:var(--white);border-radius:12px;box-shadow:var(--shadow)}
+        .related-pages h2{font-size:20px;color:var(--main-color);margin-bottom:20px;border-bottom:1px solid var(--light-color);padding-bottom:10px}
+        .related-list{display:flex;flex-wrap:wrap;gap:15px}
+        .related-item{padding:8px 20px;background:var(--light-color);color:var(--main-color);border-radius:20px;text-decoration:none;transition:.3s}
+        .related-item:hover{background:var(--main-color);color:white}
+        .related-item.active{background:var(--main-color);color:white}
+        @media (max-width:768px){
+            .nav-toggle{display:flex !important;}
+            .sidebar{position:fixed;right:0;top:0;height:100vh;transform:translateX(100%);transition:.3s;}
+            .sidebar.show{transform:translateX(0);}
+            .container{flex-direction:column;}
+            .main-content{padding:20px 15px;margin-top:60px;}
+            .advantage-item{width:100%;}
+            .link-list{justify-content:center;}
+            .page-desc h2{font-size:22px;}
+            .section-title{font-size:20px !important;}
+            .red-btn{
+                padding:14px 36px;
+                font-size:18px;
+            }
+        }
+        @media (min-width:769px){
+            .nav-toggle{display:none !important;}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-toggle" id="navToggle"><span></span></div>
+        <aside class="sidebar" id="sidebar">
+            <h1 class="title">数码资讯分享站</h1>
+            <ul class="nav-list">
+                <li class="active" data-target="page-desc">首页介绍</li>
+                <li data-target="article-box">全部随笔文章</li>
+                <li data-target="core-advantage">站点特色</li>
+                <li data-target="faq">常见说明</li>
+                <li data-target="friend-link">友情站点</li>
+                <li data-target="related-pages">内容专题</li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <section class="page-desc" id="page-desc">
+                <h2>数码随笔｜个人电子产品实测分享站点</h2>
+                <p>本网站仅为个人兴趣分享，持续更新手机、平板、数码配件的实测体验、参数对比、使用技巧；所有文章存放于posts文件夹，新增Markdown文档即可自动展示在下方列表，无任何商品交易、付费导流、外部商城链接。</p>
+                <!-- 醒目红色按钮 站内跳转至文章区域，合规无外部灰产链接 -->
+                <div class="red-btn-wrap">
+                    <a href="#article-box" class="red-btn">查看全部数码随笔文章</a>
+                </div>
+            </section>
+
+            <!-- MD文章自动加载区域 -->
+            <section class="article-box" id="article-box">
+                <h2 class="section-title">最新数码随笔文章</h2>
+                <div id="articleList" class="loading">正在加载所有文章…</div>
+            </section>
+
+            <section class="core-advantage" id="core-advantage">
+                <h2 class="section-title">本站分享特色</h2>
+                <div class="advantage-list">
+                    <div class="advantage-item">
+                        <h3>纯个人实测内容</h3>
+                        <p>所有数码体验均为自用设备长期测试，客观记录优缺点，无商业软文推广。</p>
+                    </div>
+                    <div class="advantage-item">
+                        <h3>Markdown轻量化更新</h3>
+                        <p>仅需在仓库posts文件夹上传.md文件，首页自动识别展示，无需修改页面代码。</p>
+                    </div>
+                    <div class="advantage-item">
+                        <h3>无广告无交易引导</h3>
+                        <p>页面不存在商品购买、代购、付费渠道相关内容，纯粹内容交流分享。</p>
+                    </div>
+                    <div class="advantage-item">
+                        <h3>全端适配浏览</h3>
+                        <p>PC、手机、平板均可正常访问，侧边栏移动端自动折叠，阅读体验友好。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="faq" id="faq">
+                <h2 class="section-title">站点使用说明</h2>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <h3>如何发布新的数码随笔？</h3>
+                        <p>进入仓库posts目录，新建或上传标准Markdown文件，文件头部填写标题、日期、标签，提交后等待页面缓存刷新即可在首页看到。</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>站点是否提供数码产品购买渠道？</h3>
+                        <p>本站仅做资讯内容分享，不售卖任何电子产品、不提供代购、分销渠道，如需购机请前往品牌官方门店与电商旗舰店。</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>文章内容可以转载吗？</h3>
+                        <p>个人非商用场景可自由转载，转载请标注本站来源；禁止将内容用于商业营销、商品售卖推广。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="friend-link" id="friend-link">
+                <h2 class="section-title">友情分享站点</h2>
+                <div class="link-list">
+                    <a href="#" class="link-item">数码参数科普博客</a>
+                    <a href="#" class="link-item">手机拍照体验分享</a>
+                    <a href="#" class="link-item">数码配件测评随笔</a>
+                    <a href="#" class="link-item">系统使用技巧记录</a>
+                </div>
+            </section>
+
+            <section class="related-pages" id="related-pages">
+                <h2>数码内容专题分类</h2>
+                <div class="related-list">
+                    <a href="#" class="related-item active">综合机型测评</a>
+                    <a href="#" class="related-item">影像拍照专题</a>
+                    <a href="#" class="related-item">游戏设备体验</a>
+                    <a href="#" class="related-item">轻薄商务数码</a>
+                    <a href="#" class="related-item">千元入门设备</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // 兼容旧浏览器forEach
+        if (!NodeList.prototype.forEach) {
+            NodeList.prototype.forEach = function(callback, thisArg) {
+                thisArg = thisArg || window;
+                for (var i = 0; i < this.length; i++) {
+                    callback.call(thisArg, this[i], i, this);
+                }
+            };
+        }
+        function addEvent(el,type,fn){
+            if(el.addEventListener){
+                el.addEventListener(type,fn);
+            }else if(el.attachEvent){
+                el.attachEvent('on'+type,fn);
+            }else{
+                el['on'+type] = fn;
+            }
+        }
+        function smoothScrollTo(id){
+            var t=document.getElementById(id);
+            if(t){
+                try {
+                    t.scrollIntoView({behavior:'smooth',block:'start'});
+                } catch(e) {
+                    var top = t.offsetTop;
+                    window.scrollTo({top: top, behavior: 'smooth'});
+                }
+            }
+        }
+        // 侧边栏交互
+        var navToggle=document.getElementById('navToggle'),
+            sidebar=document.getElementById('sidebar');
+        addEvent(navToggle,'click',function(){
+            sidebar.classList.toggle('show');
+            event.stopPropagation ? event.stopPropagation() : (event.cancelBubble = true);
+        });
+        addEvent(document,'click',function(){
+            if(sidebar.classList.contains('show')){
+                sidebar.classList.remove('show');
+            }
+        });
+        addEvent(sidebar,'click',function(event){
+            event.stopPropagation ? event.stopPropagation() : (event.cancelBubble = true);
+        });
+        var items=document.querySelectorAll('.nav-list li');
+        items.forEach(function(i){
+            addEvent(i,'click',function(){
+                items.forEach(e=>e.classList.remove('active'));
+                this.classList.add('active');
+                smoothScrollTo(this.dataset.target);
+                sidebar.classList.remove('show');
+            });
+        });
+
+        // ===================== 【必须修改此处】你的GitHub信息 =====================
+        const GITHUB_USER = "isawasb16";
+        const GITHUB_REPO = "isawasb16.github.io";
+        // =========================================================================
+        const POSTS_DIR = "posts/";
+
+        // 解析Markdown头部frontmatter
+        function parseFrontmatter(md) {
+            const fmReg = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
+            const match = md.match(fmReg);
+            if(!match) return {meta:{},content:md};
+            const fmText = match[1];
+            const content = match[2];
+            const meta = {};
+            fmText.split(/\r?\n/).forEach(line=>{
+                const kv = line.split(":");
+                if(kv.length>=2){
+                    const k = kv[0].trim();
+                    const v = kv.slice(1).join(":").trim();
+                    if(k==="tags"){
+                        meta.tags = v.split(",").map(t=>t.trim());
+                    }else{
+                        meta[k]=v;
+                    }
+                }
+            })
+            return {meta,content};
+        }
+
+        // 加载文章列表
+        async function loadArticleList(){
+            const wrap = document.getElementById("articleList");
+            try{
+                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`,{cache:"no-cache"});
+                const fileList = await res.json();
+                if(!Array.isArray(fileList)){
+                    wrap.className = "error-text";
+                    wrap.innerText = "读取文章目录失败，请核对用户名、仓库名，确认已创建posts文件夹";
+                    return;
+                }
+                // 只筛选md文件，新文章置顶
+                const mdFiles = fileList.filter(f=>f.name.endsWith(".md")).sort((a,b)=>b.name.localeCompare(a.name));
+                wrap.innerHTML = "";
+                if(mdFiles.length === 0){
+                    wrap.innerText = "暂无随笔文章，请在posts文件夹上传Markdown文档";
+                    return;
+                }
+                for(const file of mdFiles){
+                    const mdRaw = await fetch(file.download_url,{cache:"no-cache"});
+                    const mdText = await mdRaw.text();
+                    const {meta} = parseFrontmatter(mdText);
+                    const title = meta.title || file.name.replace(".md","");
+                    const date = meta.date || "";
+                    const tags = meta.tags || [];
+                    const itemDom = document.createElement("div");
+                    itemDom.className = "article-item";
+                    itemDom.innerHTML = `
+                        <h3><a href="article.html?file=${encodeURIComponent(file.name)}">${title}</a></h3>
+                        <div class="meta">${date ? "📅 "+date : ""}</div>
+                        <div class="tags">${tags.map(tag=>`<span>${tag}</span>`).join("")}</div>
+                    `;
+                    wrap.appendChild(itemDom);
+                }
+            }catch(err){
+                wrap.className = "error-text";
+                wrap.innerText = "文章加载失败："+err.message+"，国内网络访问GitHub接口容易受限，可稍后刷新";
+            }
+        }
+        loadArticleList();
+    </script>
+</body>
+</html>
